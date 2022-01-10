@@ -1,0 +1,72 @@
+\documentclass[12pt, a4paper]{report}
+\usepackage[english]{babel}
+\usepackage{amsfonts, amsmath, amssymb}
+\usepackage{float, graphicx}
+\usepackage{natbib}
+\usepackage{hyperref}
+
+
+
+\begin{document}
+
+\title{PUT-CALL PARITY PROOF USING APPLE STOCK OPTION CHAINS}
+
+Eric Cheruiyot-I07/81378/2017\\
+ 
+Elvin Matovu- I07/102739/2017\\
+
+Shaffy Achayo Musumba- I07/101064/2017\\
+
+Abdulaziz Abdullahi Sharif- I07/104049/2017\\
+
+Mohamed Abdirahman Galore- I07/81360/2017\\
+\vspace{5cm}
+\maketitle
+\newpage
+\section{Introduction}
+\setcounter{page}{1}
+\pagenumbering{arabic}
+For the project we used apple stock option chains data for options with a maturity date of 2/26/21.The objective of this report is to prove the put-call parity relationship is true.
+\section{Methodology \& Results}
+We got AAPL  options chain data from NYSE.We created a time series plot of the stock price.
+<<echo=FALSE>>=
+hdata<-read.csv("C:/Users/cheru/Downloads/AAPL.csv")
+hdat<-hdata[,16]
+plot.ts(hdat,lwd=3,col=c(4),
+        main="Time plot AAPL index",
+        ylab="",xlab="days")
+@
+
+We then fit a multiple linear regression model to the data using the strike,bid and ask prices for puts and calls and estimate the parameters.The observed strike price is \$120
+
+<<>>=
+optdata<-read.csv("C:/Users/cheru/OneDrive/Documents/AAPL2.csv")
+pmkt<-0.5*(optdata[,5]+optdata[,6])
+cmkt<-0.5*(optdata[,22]+optdata[,23])
+strike<-optdata[,3]
+plot(strike,cmkt,lwd=3,col=c(2),ylab="Payoff",
+     main="Observed European option price ", xlab="Strike
+Price")
+points(strike,pmkt,cex=0.8,col=c(4))
+abline(v=121,lwd=2,col=c(1))
+
+fit1<-lm(cmkt~pmkt+strike);fit1
+summary(fit1)
+@
+
+
+We then checked if the the assumption of normality
+over residuals is valid using the Shapiro-Wilk normality test and get the Normal QQ plot and histogram.
+<<>>=
+eror<-fit1$residuals
+hist(eror,probability=T)
+shapiro.test(eror)
+shapiro.test(rnorm(1000))
+qqnorm(eror)
+qqline(eror)
+@
+
+\section{Conclusion.} 
+From the AAPL options chain data we have used we see proof of put-call parity after fitting a multiple linear regression model to the data.The shapiro-wilk normality test returned a p-value of 0.9839 which is greater than 0.5 thus we conclude there is indeed normality over the residuals.
+
+\end{document}
